@@ -383,13 +383,66 @@ function button(file, label, icon, { code = 'en', active, height = 44, size = 15
   write(file, svg(w, height, body, label));
 }
 
+/** Width and height from a JPEG's SOF marker. */
+function jpegSize(buffer) {
+  for (let i = 2; i < buffer.length; ) {
+    const marker = buffer[i + 1];
+    const length = buffer.readUInt16BE(i + 2);
+    if (marker >= 0xc0 && marker <= 0xc2) return { height: buffer.readUInt16BE(i + 5), width: buffer.readUInt16BE(i + 7) };
+    i += 2 + length;
+  }
+  throw new Error('JPEG size not found');
+}
+
+{
+  // Banner: the JPEG embedded in an SVG so it gets the cards' radius and border.
+  const jpg = fs.readFileSync(path.join(assets, 'banner.jpg'));
+  const { width, height } = jpegSize(jpg);
+  const h = Math.round((W * height) / width * 100) / 100;
+  const body =
+    `<defs><clipPath id="round"><rect width="${W}" height="${h}" rx="20"/></clipPath></defs>` +
+    `<image width="${W}" height="${h}" preserveAspectRatio="xMidYMid slice" clip-path="url(#round)" xlink:href="data:image/jpeg;base64,${jpg.toString('base64')}"/>` +
+    `<rect x="0.75" y="0.75" width="${W - 1.5}" height="${h - 1.5}" rx="20" fill="none" stroke="${C.border}" stroke-width="1.5"/>`;
+  write('banner.svg', svg(W, h, body, 'Eray Menekşe · Software Development Specialist · eraymenekse.com'));
+}
+
 button('btn-website.svg', 'eraymenekse.com', (x, y, s) => lucide('globe', x, y, s));
 button('btn-linkedin.svg', 'LinkedIn', (x, y, s) => `<path transform="translate(${x} ${y}) scale(${s / 24})" d="${LINKEDIN_PATH}" fill="${C.accent}"/>`);
 
+/** Country flag (flag-icons, 4:3), rounded like the buttons, with a faint outline. */
+function flag(cc, x, y, w, h) {
+  const src = fs.readFileSync(path.join(here, 'sources', 'flags', `${cc}.svg`), 'utf8');
+  const viewBox = src.match(/viewBox="([^"]+)"/)[1];
+  const inner = src.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+  return (
+    `<defs><clipPath id="flag"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3"/></clipPath></defs>` +
+    `<g clip-path="url(#flag)"><svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="${viewBox}" preserveAspectRatio="xMidYMid slice">${inner}</svg></g>` +
+    `<rect x="${x + 0.25}" y="${y + 0.25}" width="${w - 0.5}" height="${h - 0.5}" rx="3" fill="none" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="0.5"/>`
+  );
+}
+
+// Flag per language: English → United Kingdom, Arabic → Saudi Arabia.
+const FLAGS = { en: 'gb', tr: 'tr', de: 'de', fr: 'fr', es: 'es', it: 'it', ru: 'ru', ar: 'sa', zh: 'cn', ja: 'jp' };
+
+function langButton(code, active) {
+  const label = code.toUpperCase();
+  const h = 30;
+  const size = 13;
+  const padX = 10;
+  const flagW = 20;
+  const flagH = 15;
+  const gap = 7;
+  const w = Math.ceil(padX + flagW + gap + measure(label, size, 'en', 'bold') + padX + 2);
+  const body =
+    `<rect x="0.75" y="0.75" width="${w - 1.5}" height="${h - 1.5}" rx="${(h - 1.5) / 2}" fill="${active ? C.mark : C.surface}" stroke="${active ? C.mark : C.borderStrong}" stroke-width="1.5"/>` +
+    flag(FLAGS[code], padX, (h - flagH) / 2, flagW, flagH) +
+    text(label, padX + flagW + gap, h / 2 + size * 0.34, { size, weight: 'bold', fill: active ? C.surface : C.title });
+  write(`lang/${code}${active ? '-on' : ''}.svg`, svg(w, h, body, label));
+}
+
 for (const lang of LANGS) {
-  const label = lang.code.toUpperCase();
-  button(`lang/${lang.code}.svg`, label, null, { height: 30, size: 13, padX: 13 });
-  button(`lang/${lang.code}-on.svg`, label, null, { height: 30, size: 13, padX: 13, active: true });
+  langButton(lang.code, false);
+  langButton(lang.code, true);
 }
 
 /* ----------------------------------------------------------- per language */
@@ -613,7 +666,7 @@ ${switcher}
 
 <div align="center">
 
-<a href="https://eraymenekse.com/"><img src="assets/banner.jpg" width="100%" alt="Eray Menekşe · Software Development Specialist · eraymenekse.com" /></a>
+<a href="https://eraymenekse.com/"><img src="assets/banner.svg" width="100%" alt="Eray Menekşe · Software Development Specialist · eraymenekse.com" /></a>
 
 <a href="https://eraymenekse.com/"><img src="assets/btn-website.svg" height="44" alt="eraymenekse.com" /></a>&nbsp;
 <a href="https://www.linkedin.com/in/eraymenekse"><img src="assets/btn-linkedin.svg" height="44" alt="LinkedIn" /></a>&nbsp;

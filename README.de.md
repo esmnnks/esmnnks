@@ -13,7 +13,7 @@
 
 <div align="center">
 
-<a href="https://eraymenekse.com/"><img src="assets/banner.jpg" width="100%" alt="Eray Menekşe · Software Development Specialist · eraymenekse.com" /></a>
+<a href="https://eraymenekse.com/"><img src="assets/banner.svg" width="100%" alt="Eray Menekşe · Software Development Specialist · eraymenekse.com" /></a>
 
 <a href="https://eraymenekse.com/"><img src="assets/btn-website.svg" height="44" alt="eraymenekse.com" /></a>&nbsp;
 <a href="https://www.linkedin.com/in/eraymenekse"><img src="assets/btn-linkedin.svg" height="44" alt="LinkedIn" /></a>&nbsp;
