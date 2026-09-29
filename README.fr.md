@@ -1,8 +1,8 @@
 <p align="right">
-<a href="https://github.com/esmnnks"><img src="assets/lang/en-on.svg" height="30" alt="EN" /></a>
+<a href="https://github.com/esmnnks"><img src="assets/lang/en.svg" height="30" alt="EN" /></a>
 <a href="https://github.com/esmnnks/esmnnks/blob/master/README.tr.md"><img src="assets/lang/tr.svg" height="30" alt="TR" /></a>
 <a href="https://github.com/esmnnks/esmnnks/blob/master/README.de.md"><img src="assets/lang/de.svg" height="30" alt="DE" /></a>
-<a href="https://github.com/esmnnks/esmnnks/blob/master/README.fr.md"><img src="assets/lang/fr.svg" height="30" alt="FR" /></a>
+<a href="https://github.com/esmnnks/esmnnks/blob/master/README.fr.md"><img src="assets/lang/fr-on.svg" height="30" alt="FR" /></a>
 <a href="https://github.com/esmnnks/esmnnks/blob/master/README.es.md"><img src="assets/lang/es.svg" height="30" alt="ES" /></a>
 <a href="https://github.com/esmnnks/esmnnks/blob/master/README.it.md"><img src="assets/lang/it.svg" height="30" alt="IT" /></a>
 <a href="https://github.com/esmnnks/esmnnks/blob/master/README.ru.md"><img src="assets/lang/ru.svg" height="30" alt="RU" /></a>
@@ -17,20 +17,20 @@
 
 <a href="https://eraymenekse.com/"><img src="assets/btn-website.svg" height="44" alt="eraymenekse.com" /></a>&nbsp;
 <a href="https://www.linkedin.com/in/eraymenekse"><img src="assets/btn-linkedin.svg" height="44" alt="LinkedIn" /></a>&nbsp;
-<img src="assets/en/btn-location.svg" height="44" alt="Bursa, Türkiye" />
+<img src="assets/fr/btn-location.svg" height="44" alt="Bursa, Turquie" />
 
 </div>
 
 <br />
 
-<img src="assets/en/about.svg" width="100%" alt="About: I design and build business software end to end, from the database and APIs to the web and mobile screens people use every day. My work sits where sales, production and warehouse operations meet: CRM, ERP, MES and WMS systems, the integrations that keep them in sync, and AI-powered tools that take repetitive work off people's plates." />
+<img src="assets/fr/about.svg" width="100%" alt="À propos: Je conçois et développe des logiciels métier de bout en bout, de la base de données et des API jusqu'aux écrans web et mobiles utilisés au quotidien. Mon travail se situe là où se rejoignent ventes, production et logistique : systèmes CRM, ERP, MES et WMS, les intégrations qui les synchronisent, et des outils propulsés par l'IA qui libèrent les équipes des tâches répétitives." />
 
-<img src="assets/en/build.svg" width="100%" alt="What I build: CRM, MES, WMS, ERP integrations, AI &amp; automation, Customer discovery, Mobile apps, Real-time collaboration" />
+<img src="assets/fr/build.svg" width="100%" alt="Ce que je conçois: CRM, MES, WMS, Intégrations ERP, IA &amp; automatisation, Prospection clients, Applications mobiles, Collaboration en temps réel" />
 
-<img src="assets/en/flow.svg" width="100%" alt="How it fits together" />
+<img src="assets/fr/flow.svg" width="100%" alt="Comment tout s'articule" />
 
-<img src="assets/en/stack.svg" width="100%" alt="Tech stack: C#, .NET, Entity Framework Core, SQL Server, Oracle, TypeScript, React, Next.js, Tailwind CSS, PWA, Windows, macOS / iOS, Linux, Android, Git, GitHub Actions, Visual Studio, VS Code, PowerShell, Playwright, Vitest" />
+<img src="assets/fr/stack.svg" width="100%" alt="Stack technique: C#, .NET, Entity Framework Core, SQL Server, Oracle, TypeScript, React, Next.js, Tailwind CSS, PWA, Windows, macOS / iOS, Linux, Android, Git, GitHub Actions, Visual Studio, VS Code, PowerShell, Playwright, Vitest" />
 
-<img src="assets/en/principles.svg" width="100%" alt="Principles: Secure by default, Fast, Tested, Global-ready" />
+<img src="assets/fr/principles.svg" width="100%" alt="Principes: Sécurisé par défaut, Rapide, Testé, Prêt pour l'international" />
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0B1B33,100:1E3A8A&height=110&section=footer" width="100%" alt="" />

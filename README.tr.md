@@ -1,6 +1,6 @@
 <p align="right">
-<a href="https://github.com/esmnnks"><img src="assets/lang/en-on.svg" height="30" alt="EN" /></a>
-<a href="https://github.com/esmnnks/esmnnks/blob/master/README.tr.md"><img src="assets/lang/tr.svg" height="30" alt="TR" /></a>
+<a href="https://github.com/esmnnks"><img src="assets/lang/en.svg" height="30" alt="EN" /></a>
+<a href="https://github.com/esmnnks/esmnnks/blob/master/README.tr.md"><img src="assets/lang/tr-on.svg" height="30" alt="TR" /></a>
 <a href="https://github.com/esmnnks/esmnnks/blob/master/README.de.md"><img src="assets/lang/de.svg" height="30" alt="DE" /></a>
 <a href="https://github.com/esmnnks/esmnnks/blob/master/README.fr.md"><img src="assets/lang/fr.svg" height="30" alt="FR" /></a>
 <a href="https://github.com/esmnnks/esmnnks/blob/master/README.es.md"><img src="assets/lang/es.svg" height="30" alt="ES" /></a>
@@ -17,20 +17,20 @@
 
 <a href="https://eraymenekse.com/"><img src="assets/btn-website.svg" height="44" alt="eraymenekse.com" /></a>&nbsp;
 <a href="https://www.linkedin.com/in/eraymenekse"><img src="assets/btn-linkedin.svg" height="44" alt="LinkedIn" /></a>&nbsp;
-<img src="assets/en/btn-location.svg" height="44" alt="Bursa, Türkiye" />
+<img src="assets/tr/btn-location.svg" height="44" alt="Bursa, Türkiye" />
 
 </div>
 
 <br />
 
-<img src="assets/en/about.svg" width="100%" alt="About: I design and build business software end to end, from the database and APIs to the web and mobile screens people use every day. My work sits where sales, production and warehouse operations meet: CRM, ERP, MES and WMS systems, the integrations that keep them in sync, and AI-powered tools that take repetitive work off people's plates." />
+<img src="assets/tr/about.svg" width="100%" alt="Hakkımda: Veritabanı ve API'lerden insanların her gün kullandığı web ve mobil ekranlara kadar iş yazılımlarını uçtan uca tasarlayıp geliştiriyorum. Çalışmalarım satış, üretim ve depo operasyonlarının kesiştiği noktada: CRM, ERP, MES ve WMS sistemleri, bunları senkron tutan entegrasyonlar ve tekrarlayan işleri insanların üzerinden alan yapay zeka destekli araçlar." />
 
-<img src="assets/en/build.svg" width="100%" alt="What I build: CRM, MES, WMS, ERP integrations, AI &amp; automation, Customer discovery, Mobile apps, Real-time collaboration" />
+<img src="assets/tr/build.svg" width="100%" alt="Neler geliştiriyorum: CRM, MES, WMS, ERP entegrasyonları, Yapay zeka ve otomasyon, Müşteri keşfi, Mobil uygulamalar, Gerçek zamanlı iş birliği" />
 
-<img src="assets/en/flow.svg" width="100%" alt="How it fits together" />
+<img src="assets/tr/flow.svg" width="100%" alt="Sistemler nasıl birleşiyor" />
 
-<img src="assets/en/stack.svg" width="100%" alt="Tech stack: C#, .NET, Entity Framework Core, SQL Server, Oracle, TypeScript, React, Next.js, Tailwind CSS, PWA, Windows, macOS / iOS, Linux, Android, Git, GitHub Actions, Visual Studio, VS Code, PowerShell, Playwright, Vitest" />
+<img src="assets/tr/stack.svg" width="100%" alt="Teknolojiler: C#, .NET, Entity Framework Core, SQL Server, Oracle, TypeScript, React, Next.js, Tailwind CSS, PWA, Windows, macOS / iOS, Linux, Android, Git, GitHub Actions, Visual Studio, VS Code, PowerShell, Playwright, Vitest" />
 
-<img src="assets/en/principles.svg" width="100%" alt="Principles: Secure by default, Fast, Tested, Global-ready" />
+<img src="assets/tr/principles.svg" width="100%" alt="İlkeler: Varsayılan olarak güvenli, Hızlı, Test edilmiş, Küresel" />
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0B1B33,100:1E3A8A&height=110&section=footer" width="100%" alt="" />
