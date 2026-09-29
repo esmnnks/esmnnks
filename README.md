@@ -1,16 +1,21 @@
-## Hi there 👋
+## Eray Menekşe
 
-<!--
-**esmnnks/esmnnks** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Full-stack software developer building business software: CRM, ERP, MES and WMS
+systems, ERP integrations and AI-powered tools that automate everyday work.
 
-Here are some ideas to get you started:
+### What I build
+- **Business systems:** CRM, ERP, MES and WMS applications for sales, production
+  and warehouse operations
+- **ERP integrations:** reliable data sync between business applications and ERP platforms
+- **AI-powered tools:** LLM integrations, AI agents, customer discovery and
+  lead generation automation
+- **Web & mobile apps:** secure, multi-language web applications and installable PWAs
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+### Tech stack
+**Backend:** C# · .NET · ASP.NET Core · Entity Framework Core · SignalR · REST APIs  
+**Database:** SQL Server · T-SQL  
+**Frontend:** TypeScript · React · Next.js · Tailwind CSS · PWA  
+**Tooling:** Git · GitHub Actions · Playwright · xUnit · IIS
+
+### Contact
+[LinkedIn](https://www.linkedin.com/in/your-profile)
