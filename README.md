@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:512BD4,100:2563EB&height=190&section=header&text=Eray%20Menek%C5%9Fe&fontSize=46&fontColor=ffffff&fontAlignY=38&desc=Full-stack%20.NET%20Developer%20%C2%B7%20Business%20Software%20%26%20AI&descSize=17&descAlignY=60&animation=fadeIn" width="100%" alt="Eray Menekşe · Full-stack .NET Developer" />
+<a href="https://eraymenekse.com/"><img src="assets/banner.jpg" width="100%" alt="Eray Menekşe · Software Development Specialist · eraymenekse.com" /></a>
 
 <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=600&size=20&duration=3200&pause=900&color=2563EB&center=true&vCenter=true&width=640&lines=CRM+%C2%B7+ERP+%C2%B7+MES+%C2%B7+WMS+systems;AI-powered+business+automation;Customer+discovery+%26+lead+generation;C%23+%C2%B7+.NET+%C2%B7+SQL+Server+%C2%B7+Next.js" alt="CRM, ERP, MES and WMS systems · AI-powered business automation · Customer discovery and lead generation" />
 
@@ -126,8 +126,6 @@ flowchart LR
 [![Website](https://img.shields.io/badge/Website-eraymenekse.com-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white)](https://eraymenekse.com/)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-eraymenekse-0A66C2?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0yMC40NDcgMjAuNDUyaC0zLjU1NHYtNS41NjljMC0xLjMyOC0uMDI3LTMuMDM3LTEuODUyLTMuMDM3LTEuODUzIDAtMi4xMzYgMS40NDUtMi4xMzYgMi45Mzl2NS42NjdIOS4zNTFWOWgzLjQxNHYxLjU2MWguMDQ2Yy40NzctLjkgMS42MzctMS44NSAzLjM3LTEuODUgMy42MDEgMCA0LjI2NyAyLjM3IDQuMjY3IDUuNDU1djYuMjg2ek01LjMzNyA3LjQzM2MtMS4xNDQgMC0yLjA2My0uOTI2LTIuMDYzLTIuMDY1IDAtMS4xMzguOTItMi4wNjMgMi4wNjMtMi4wNjMgMS4xNCAwIDIuMDY0LjkyNSAyLjA2NCAyLjA2MyAwIDEuMTM5LS45MjUgMi4wNjUtMi4wNjQgMi4wNjV6bTEuNzgyIDEzLjAxOUgzLjU1NVY5aDMuNTY0djExLjQ1MnpNMjIuMjI1IDBIMS43NzFDLjc5MiAwIDAgLjc3NCAwIDEuNzI5djIwLjU0MkMwIDIzLjIyNy43OTIgMjQgMS43NzEgMjRoMjAuNDUxQzIzLjIgMjQgMjQgMjMuMjI3IDI0IDIyLjI3MVYxLjcyOUMyNCAuNzc0IDIzLjIgMCAyMi4yMjIgMGguMDAzeiIvPjwvc3ZnPg%3D%3D)](https://www.linkedin.com/in/eraymenekse)
 
-<br />
-
-<a href="https://eraymenekse.com/"><img src="assets/banner.jpg" width="100%" alt="Eray Menekşe · Software Development Specialist · eraymenekse.com" /></a>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:2563EB,100:512BD4&height=110&section=footer" width="100%" alt="" />
 
 </div>
