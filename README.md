@@ -45,12 +45,19 @@ and **AI-powered tools** that take repetitive work off people's plates.
     </td>
     <td width="33%" valign="top">
       <h3>🤖 AI &amp; automation</h3>
-      LLM-powered assistants and AI agents that automate sales and back-office tasks.
+      LLM-powered assistants and AI agents that automate sales and back-office workflows.
     </td>
     <td width="33%" valign="top">
       <h3>🎯 Customer discovery</h3>
       Lead generation pipelines that find potential customers, enrich company data and
       score leads for the sales team.
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3" valign="top">
+      <h3>💬 Real-time collaboration</h3>
+      Live messaging, notifications and video meetings built into business apps, on the web
+      and on mobile as installable PWAs.
     </td>
   </tr>
 </table>
@@ -113,11 +120,6 @@ flowchart LR
 - **Fast:** screens and actions designed to respond in under a second
 - **Tested:** unit, integration and end-to-end tests on every change
 - **Global-ready:** multi-language interfaces and accessibility built in
-
-## Currently exploring
-
-- AI agents that automate sales and back-office workflows
-- Real-time collaboration: live messaging, notifications and video meetings
 
 <div align="center">
 
