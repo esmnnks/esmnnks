@@ -1,7 +1,7 @@
-// Profile README visuals: cards, buttons, headings and diagram as SVG.
-// GitHub strips CSS and web fonts from READMEs, so text is drawn as Lekton
-// outlines (no font loading) and cards get their radius from the SVG itself.
-// Run: npm install && npm run build   (outputs to ../assets)
+// Profile README visuals: navy, minimal section cards, buttons, diagram and tech icons.
+// GitHub strips CSS and web fonts from READMEs, so text is drawn as Lekton outlines
+// (no font loading) and the rounded corners live in the SVGs themselves.
+// Run: npm install && npm run build   (writes ../assets/*.svg)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,36 +9,53 @@ import opentype from 'opentype.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const assets = path.resolve(here, '..', 'assets');
-fs.mkdirSync(path.join(assets, 'icons'), { recursive: true });
+
+// Generated files only; banner.jpg stays.
+for (const file of fs.readdirSync(assets)) {
+  if (file.endsWith('.svg')) fs.rmSync(path.join(assets, file));
+}
+fs.rmSync(path.join(assets, 'icons'), { recursive: true, force: true });
 
 const regular = opentype.loadSync(path.join(here, 'fonts', 'Lekton-Regular.ttf'));
 const bold = opentype.loadSync(path.join(here, 'fonts', 'Lekton-Bold.ttf'));
 
+// Single navy palette: one surface, one accent, grays for text.
 const C = {
-  card: '#111827',
-  border: '#1F2937',
-  title: '#F9FAFB',
-  body: '#DCE3EC',
-  muted: '#94A3B8',
-  purple: '#512BD4',
-  blue: '#2563EB',
-  teal: '#0F766E',
-  line: '#475569',
+  surface: '#0B1B33',
+  panel: '#10233F',
+  border: '#1C3050',
+  borderStrong: '#2A4470',
+  label: '#7F97BD',
+  title: '#F1F5FB',
+  body: '#B9C6D8',
+  accent: '#9DB4DA',
+  mark: '#DCE6F5',
+  node: '#16325C',
+  nodeStrong: '#1E4178',
+  line: '#5B7196',
 };
 const W = 840;
+const PAD = 28;
+const LABEL_H = 46;
 
 /* ---------------------------------------------------------------- text */
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-const measure = (str, size, font = regular) => font.getAdvanceWidth(str, size);
 
 function assertGlyphs(str, font) {
   for (const ch of str) {
-    if (ch.trim() && font.charToGlyphIndex(ch) === 0) {
-      throw new Error(`Lekton has no glyph for "${ch}" in "${str}"`);
-    }
+    if (ch.trim() && font.charToGlyphIndex(ch) === 0) throw new Error(`Lekton has no glyph for "${ch}" in "${str}"`);
   }
 }
+
+// No ligatures: Lekton's fi/fl ligatures are narrower than the letters they replace,
+// which left gaps after words; measuring and drawing use the same glyph run.
+const GLYPH_OPTIONS = { kerning: false, features: { liga: false, rlig: false } };
+const glyphRun = (str, font) => font.stringToGlyphs(str, GLYPH_OPTIONS);
+
+const measure = (str, size, font = regular, tracking = 0) =>
+  (glyphRun(str, font).reduce((sum, glyph) => sum + glyph.advanceWidth, 0) * size) / font.unitsPerEm +
+  tracking * Math.max(0, [...str].length - 1);
 
 /** Baseline that vertically centers capitals on `centerY`. */
 function baseline(centerY, size, font = bold) {
@@ -55,29 +72,33 @@ function glyphRef(font, glyph) {
   return key;
 }
 
-function text(str, x, y, { size = 16, font = regular, fill = C.body, anchor = 'start' } = {}) {
+function text(str, x, y, { size = 16, font = regular, fill = C.body, anchor = 'start', tracking = 0 } = {}) {
   assertGlyphs(str, font);
-  const w = measure(str, size, font);
+  const w = measure(str, size, font, tracking);
   const scale = size / font.unitsPerEm;
   let cx = x + (anchor === 'middle' ? -w / 2 : anchor === 'end' ? -w : 0);
   let out = '';
-  for (const glyph of font.stringToGlyphs(str)) {
+  for (const glyph of glyphRun(str, font)) {
     if (glyph.path.commands.length) {
       out += `<use xlink:href="#${glyphRef(font, glyph)}" transform="translate(${cx.toFixed(1)} ${y.toFixed(1)}) scale(${scale.toFixed(5)})"/>`;
     }
-    cx += glyph.advanceWidth * scale;
+    cx += glyph.advanceWidth * scale + tracking;
   }
   return `<g fill="${fill}">${out}</g>`;
 }
 
-/** Greedy word wrap for rich runs: [{ text, bold?, color? }]. */
+/** Greedy word wrap for rich runs: [{ text, bold? }]. */
 function wrap(runs, maxWidth, size) {
   const words = [];
   for (const run of typeof runs === 'string' ? [{ text: runs }] : runs) {
     for (const part of run.text.split(/(\s+)/)) {
       if (!part) continue;
-      const font = run.bold ? bold : regular;
-      words.push({ text: part, font, color: run.color ?? (run.bold ? C.title : C.body), space: /^\s+$/.test(part) });
+      words.push({
+        text: part,
+        font: run.bold ? bold : regular,
+        color: run.bold ? C.title : C.body,
+        space: /^\s+$/.test(part),
+      });
     }
   }
   const lines = [[]];
@@ -111,7 +132,7 @@ function drawLines(lines, x, y, size, lineHeight) {
 
 /* --------------------------------------------------------------- icons */
 
-function lucide(name, x, y, size = 24, color = '#FFFFFF') {
+function lucide(name, x, y, size = 24, color = C.accent) {
   const src = fs.readFileSync(path.join(here, 'icons', `${name}.svg`), 'utf8');
   const inner = src.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
   return `<g transform="translate(${x} ${y}) scale(${size / 24})" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
@@ -120,16 +141,29 @@ function lucide(name, x, y, size = 24, color = '#FFFFFF') {
 const LINKEDIN_PATH =
   'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z';
 
-const linkedin = (x, y, size) =>
-  `<path transform="translate(${x} ${y}) scale(${size / 24})" d="${LINKEDIN_PATH}" fill="#FFFFFF"/>`;
+/** Single-color brand mark (Simple Icons / Devicon plain), recolored. */
+function mark(file, x, y, size, color = C.mark) {
+  if (file === 'windows') {
+    // Four squares; no single-color Windows mark is published.
+    const s = size * 0.46;
+    const g = size - s * 2;
+    return [0, 1].flatMap((r) => [0, 1].map((c) => `<rect x="${x + c * (s + g)}" y="${y + r * (s + g)}" width="${s}" height="${s}" rx="1" fill="${color}"/>`)).join('');
+  }
+  const src = fs.readFileSync(path.join(here, 'sources', 'mono', `${file}.svg`), 'utf8');
+  const viewBox = src.match(/viewBox="([^"]+)"/)[1];
+  const inner = src
+    .replace(/^[\s\S]*?<svg[^>]*>/, '')
+    .replace(/<\/svg>\s*$/, '')
+    .replace(/<title>[\s\S]*?<\/title>/, '')
+    .replace(/\sfill="(?!none)[^"]*"/g, '');
+  return `<svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="${viewBox}" fill="${color}">${inner}</svg>`;
+}
 
 /* ----------------------------------------------------------------- svg */
 
 const DEFS =
-  `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">` +
-  `<stop offset="0" stop-color="${C.purple}"/><stop offset="1" stop-color="${C.blue}"/></linearGradient>` +
-  `<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">` +
-  `<path d="M0 0L10 5L0 10z" fill="${C.muted}"/></marker></defs>`;
+  `<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">` +
+  `<path d="M0 0L10 5L0 10z" fill="${C.line}"/></marker></defs>`;
 
 function svg(width, height, body, label) {
   const glyphDefs = [...glyphs].map(([id, d]) => `<path id="${id}" d="${d}"/>`).join('');
@@ -142,63 +176,48 @@ function svg(width, height, body, label) {
 
 function write(name, content) {
   fs.writeFileSync(path.join(assets, name), content);
-  console.log(`${name.padEnd(26)} ${(content.length / 1024).toFixed(1)} KB`);
+  console.log(`${name.padEnd(18)} ${(content.length / 1024).toFixed(1)} KB`);
 }
 
-const card = (x, y, w, h, r = 18) =>
-  `<rect x="${x + 0.75}" y="${y + 0.75}" width="${w - 1.5}" height="${h - 1.5}" rx="${r}" fill="${C.card}" stroke="${C.border}" stroke-width="1.5"/>`;
+const rect = (x, y, w, h, r, fill, stroke = C.border) =>
+  `<rect x="${x + 0.75}" y="${y + 0.75}" width="${w - 1.5}" height="${h - 1.5}" rx="${r}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
+
+/** Section card: small uppercase label, then content drawn at (PAD, PAD + LABEL_H). */
+function section(name, label, contentH, draw, alt) {
+  const h = PAD + LABEL_H + contentH + PAD;
+  const body =
+    rect(0, 0, W, h, 20, C.surface) +
+    `<rect x="${PAD}" y="${PAD + 7}" width="18" height="2" rx="1" fill="${C.accent}"/>` +
+    text(label.toUpperCase(), PAD + 28, PAD + 12, { size: 13, font: bold, fill: C.label, tracking: 2.2 }) +
+    draw(PAD, PAD + LABEL_H);
+  write(name, svg(W, h, body, alt));
+}
 
 /* ------------------------------------------------------------- buttons */
 
-function button(name, { label, icon, fill, stroke }) {
-  const size = 17;
-  const h = 48;
-  const padX = 22;
-  const iconSize = 20;
+function button(name, label, icon) {
+  const size = 15;
+  const h = 44;
+  const padX = 20;
+  const iconSize = 18;
   const gap = 10;
   const w = Math.ceil(padX + iconSize + gap + measure(label, size, bold) + padX);
   const body =
-    `<rect x="1" y="1" width="${w - 2}" height="${h - 2}" rx="${(h - 2) / 2}" fill="${fill}"${stroke ? ` stroke="${stroke}" stroke-width="1.5"` : ''}/>` +
+    `<rect x="0.75" y="0.75" width="${w - 1.5}" height="${h - 1.5}" rx="${(h - 1.5) / 2}" fill="${C.surface}" stroke="${C.borderStrong}" stroke-width="1.5"/>` +
     icon(padX, (h - iconSize) / 2, iconSize) +
-    text(label, padX + iconSize + gap, baseline(h / 2, size), { size, font: bold, fill: '#FFFFFF' });
+    text(label, padX + iconSize + gap, baseline(h / 2, size), { size, font: bold, fill: C.title });
   write(name, svg(w, h, body, label));
 }
 
-button('btn-website.svg', { label: 'eraymenekse.com', icon: (x, y, s) => lucide('globe', x, y, s), fill: 'url(#g)' });
-button('btn-linkedin.svg', { label: 'LinkedIn', icon: linkedin, fill: '#0A66C2' });
-button('btn-location.svg', {
-  label: 'Bursa, Türkiye',
-  icon: (x, y, s) => lucide('map-pin', x, y, s),
-  fill: C.card,
-  stroke: '#374151',
-});
-
-/* ------------------------------------------------------------ headings */
-
-function heading(name, label) {
-  const size = 24;
-  const h = 54;
-  const w = Math.ceil(30 + measure(label, size, bold) + 26);
-  const body =
-    `<rect x="0.75" y="0.75" width="${w - 1.5}" height="${h - 1.5}" rx="14" fill="${C.card}" stroke="${C.border}" stroke-width="1.5"/>` +
-    `<rect x="13" y="15" width="5" height="${h - 30}" rx="2.5" fill="url(#g)"/>` +
-    text(label, 30, baseline(h / 2, size), { size, font: bold, fill: C.title });
-  write(name, svg(w, h, body, label));
-}
-
-heading('h-about.svg', 'About me');
-heading('h-build.svg', 'What I build');
-heading('h-flow.svg', 'How the pieces fit together');
-heading('h-stack.svg', 'Tech stack');
-heading('h-principles.svg', 'Engineering principles');
-heading('h-connect.svg', "Let's connect");
+button('btn-website.svg', 'eraymenekse.com', (x, y, s) => lucide('globe', x, y, s));
+button('btn-linkedin.svg', 'LinkedIn', (x, y, s) => `<path transform="translate(${x} ${y}) scale(${s / 24})" d="${LINKEDIN_PATH}" fill="${C.accent}"/>`);
+button('btn-location.svg', 'Bursa, Türkiye', (x, y, s) => lucide('map-pin', x, y, s));
 
 /* --------------------------------------------------------------- about */
 
 {
-  const size = 17;
-  const lineHeight = 29;
-  const pad = 30;
+  const size = 16.5;
+  const lineHeight = 28;
   const runs = [
     { text: 'I design and build business software end to end, from the database and APIs to the web and mobile screens people use every day. My work sits where sales, production and warehouse operations meet: ' },
     { text: 'CRM, ERP, MES and WMS systems', bold: true },
@@ -206,164 +225,182 @@ heading('h-connect.svg', "Let's connect");
     { text: 'AI-powered tools', bold: true },
     { text: " that take repetitive work off people's plates." },
   ];
-  const lines = wrap(runs, W - pad * 2, size);
-  const h = pad * 2 + lineHeight * (lines.length - 1) + size;
-  const body = card(0, 0, W, h, 20) + drawLines(lines, pad, pad + size * 0.8, size, lineHeight);
-  write('about.svg', svg(W, h, body, runs.map((r) => r.text).join('')));
+  const lines = wrap(runs, W - PAD * 2, size);
+  const contentH = lineHeight * (lines.length - 1) + size;
+  section('about.svg', 'About', contentH, (x, y) => drawLines(lines, x, y + size * 0.8, size, lineHeight), runs.map((r) => r.text).join(''));
 }
 
-/* ------------------------------------------------------- feature cards */
+/* ------------------------------------------------------- what I build */
 
-function featureGrid(name, items, label) {
-  const cols = 2;
-  const gap = 20;
-  const cardW = (W - gap) / cols;
-  const pad = 22;
-  const badge = 48;
-  const titleSize = 20;
-  const bodySize = 15;
-  const lineHeight = 23;
-  const textX = pad + badge + 16;
-  const textW = cardW - textX - pad;
+function itemGrid(name, label, items, { panels = true } = {}) {
+  const inner = W - PAD * 2;
+  const gap = 14;
+  const itemW = (inner - gap) / 2;
+  const pad = panels ? 20 : 0;
+  const iconSize = 22;
+  const textX = pad + iconSize + 16;
+  const textW = itemW - textX - pad;
+  const titleSize = 17;
+  const bodySize = 14;
+  const lineHeight = 22;
 
   const laid = items.map((item) => ({ ...item, lines: wrap(item.text, textW, bodySize) }));
-  const contentH = Math.max(...laid.map((item) => titleSize + 12 + lineHeight * (item.lines.length - 1) + bodySize));
-  const cardH = Math.max(badge, contentH) + pad * 2;
-  const rows = Math.ceil(items.length / cols);
-  const h = rows * cardH + (rows - 1) * gap;
+  const itemH = pad * 2 + Math.max(...laid.map((i) => titleSize + 10 + lineHeight * (i.lines.length - 1) + bodySize));
+  const rows = Math.ceil(items.length / 2);
+  const rowGap = panels ? gap : 22;
+  const contentH = rows * itemH + (rows - 1) * rowGap;
 
-  let body = '';
-  laid.forEach((item, index) => {
-    const x = (index % cols) * (cardW + gap);
-    const y = Math.floor(index / cols) * (cardH + gap);
-    body +=
-      card(x, y, cardW, cardH) +
-      `<rect x="${x + pad}" y="${y + pad}" width="${badge}" height="${badge}" rx="14" fill="url(#g)"/>` +
-      lucide(item.icon, x + pad + 12, y + pad + 12, 24) +
-      text(item.title, x + textX, y + pad + titleSize * 0.85, { size: titleSize, font: bold, fill: C.title }) +
-      drawLines(item.lines, x + textX, y + pad + titleSize + 12 + bodySize * 0.8, bodySize, lineHeight);
-  });
-  write(name, svg(W, h, body, label ?? items.map((i) => `${i.title}: ${i.text}`).join(' ')));
+  section(
+    name,
+    label,
+    contentH,
+    (ox, oy) =>
+      laid
+        .map((item, index) => {
+          const x = ox + (index % 2) * (itemW + gap);
+          const y = oy + Math.floor(index / 2) * (itemH + rowGap);
+          return (
+            (panels ? rect(x, y, itemW, itemH, 14, C.panel) : '') +
+            lucide(item.icon, x + pad, y + pad + 1, iconSize) +
+            text(item.title, x + textX, y + pad + titleSize * 0.82, { size: titleSize, font: bold, fill: C.title }) +
+            drawLines(item.lines, x + textX, y + pad + titleSize + 10 + bodySize * 0.8, bodySize, lineHeight)
+          );
+        })
+        .join(''),
+    `${label}: ${items.map((i) => `${i.title}: ${i.text}`).join(' ')}`,
+  );
 }
 
-featureGrid('build.svg', [
-  { icon: 'handshake', title: 'CRM', text: 'Customer 360, sales pipeline, quotes and dealer networks, with role-based access control and a complete audit trail.' },
+itemGrid('build.svg', 'What I build', [
+  { icon: 'handshake', title: 'CRM', text: 'Customer 360, sales pipeline, quotes and dealer networks, with role-based access and a full audit trail.' },
   { icon: 'factory', title: 'MES', text: 'Work orders, shop-floor data capture and real-time production tracking and reporting.' },
   { icon: 'package', title: 'WMS', text: 'Receiving, put-away, picking and shipping, driven by barcode-based mobile workflows.' },
-  { icon: 'cable', title: 'ERP integrations', text: 'Reliable two-way sync of customers, products, orders and invoices, including multi-company setups.' },
+  { icon: 'cable', title: 'ERP integrations', text: 'Reliable two-way sync of customers, products, orders and invoices across companies.' },
   { icon: 'bot', title: 'AI & automation', text: 'LLM-powered assistants and AI agents that automate sales and back-office workflows.' },
-  { icon: 'target', title: 'Customer discovery', text: 'Lead generation pipelines that find potential customers, enrich company data and score leads.' },
+  { icon: 'target', title: 'Customer discovery', text: 'Lead generation pipelines that find potential customers, enrich data and score leads.' },
   { icon: 'smartphone', title: 'Mobile apps', text: 'iOS and Android apps and installable PWAs for sales, field and shop-floor teams.' },
   { icon: 'messages-square', title: 'Real-time collaboration', text: 'Live messaging, notifications and video meetings built into business apps.' },
 ]);
 
-featureGrid('principles.svg', [
-  { icon: 'shield-check', title: 'Secure by default', text: 'Authentication, authorization, encryption and audit trails from day one.' },
-  { icon: 'zap', title: 'Fast', text: 'Screens and actions designed to respond in under a second.' },
-  { icon: 'flask-conical', title: 'Tested', text: 'Unit, integration and end-to-end tests on every change.' },
-  { icon: 'languages', title: 'Global-ready', text: 'Multi-language interfaces with accessibility built in.' },
-]);
+itemGrid(
+  'principles.svg',
+  'Principles',
+  [
+    { icon: 'shield-check', title: 'Secure by default', text: 'Authentication, authorization, encryption and audit trails from day one.' },
+    { icon: 'zap', title: 'Fast', text: 'Screens and actions designed to respond in under a second.' },
+    { icon: 'flask-conical', title: 'Tested', text: 'Unit, integration and end-to-end tests on every change.' },
+    { icon: 'languages', title: 'Global-ready', text: 'Multi-language interfaces with accessibility built in.' },
+  ],
+  { panels: false },
+);
 
 /* ------------------------------------------------------------- diagram */
 
 {
-  // Three columns with wide gutters so edge labels never cover a node.
-  const h = 462;
-  const nodeW = 180;
-  const nodeH = 74;
-  const nodes = {
-    ai: { x: 45, y: 70, title: 'AI agents', sub: 'lead discovery', fill: C.blue },
-    crm: { x: 45, y: 236, title: 'CRM', sub: 'customers · pipeline', fill: C.purple },
-    erp: { x: 330, y: 153, title: 'ERP', sub: 'finance · stock', fill: C.purple },
-    mes: { x: 615, y: 70, title: 'MES', sub: 'production tracking', fill: C.purple },
-    wms: { x: 615, y: 236, title: 'WMS', sub: 'receiving · shipping', fill: C.purple },
+  const nodeW = 170;
+  const nodeH = 70;
+  const contentH = 380;
+
+  const draw = (ox, oy) => {
+    const n = {
+      ai: { x: 25, y: 46, title: 'AI agents', sub: 'lead discovery', fill: C.nodeStrong },
+      crm: { x: 25, y: 200, title: 'CRM', sub: 'customers · pipeline', fill: C.node },
+      erp: { x: 300, y: 123, title: 'ERP', sub: 'finance · stock', fill: C.node },
+      mes: { x: 589, y: 46, title: 'MES', sub: 'production tracking', fill: C.node },
+      wms: { x: 589, y: 200, title: 'WMS', sub: 'receiving · shipping', fill: C.node },
+    };
+    const X = (v) => ox + v;
+    const Y = (v) => oy + v;
+    const cx = (k) => X(n[k].x + nodeW / 2);
+    const cy = (k) => Y(n[k].y + nodeH / 2);
+    const top = (k) => Y(n[k].y);
+    const bottom = (k) => Y(n[k].y + nodeH);
+    const left = (k) => X(n[k].x);
+    const right = (k) => X(n[k].x + nodeW);
+
+    const group = (x, w, label) =>
+      `<rect x="${X(x)}" y="${Y(0)}" width="${w}" height="300" rx="16" fill="none" stroke="${C.border}" stroke-width="1.5" stroke-dasharray="5 6"/>` +
+      text(label, X(x + 16), Y(24), { size: 11, font: bold, fill: C.label, tracking: 1.6 });
+
+    const node = (k) =>
+      rect(X(n[k].x), Y(n[k].y), nodeW, nodeH, 14, n[k].fill, C.borderStrong) +
+      text(n[k].title, cx(k), Y(n[k].y + 30), { size: 18, font: bold, fill: C.title, anchor: 'middle' }) +
+      text(n[k].sub, cx(k), Y(n[k].y + 52), { size: 12.5, fill: '#C9D6EA', anchor: 'middle' });
+
+    const edge = (d, both = false, dashed = false) =>
+      `<path d="${d}" fill="none" stroke="${C.line}" stroke-width="1.6"${dashed ? ' stroke-dasharray="4 6"' : ''} marker-end="url(#arrow)"${both ? ' marker-start="url(#arrow)"' : ''}/>`;
+
+    const tag = (str, x, y) => {
+      const size = 12;
+      const w = measure(str, size) + 16;
+      return (
+        `<rect x="${X(x) - w / 2}" y="${Y(y) - 11}" width="${w}" height="21" rx="10.5" fill="${C.surface}" stroke="${C.border}"/>` +
+        text(str, X(x), Y(y) + 4, { size, fill: C.body, anchor: 'middle' })
+      );
+    };
+
+    const appsY = 330;
+    let out = group(0, 220, 'FRONT OFFICE') + group(260, 524, 'BACK OFFICE');
+    out += edge(`M${cx('ai')} ${bottom('ai')} V${top('crm') - 4}`);
+    out += edge(`M${right('crm')} ${cy('crm')} C ${X(235)} ${cy('crm')}, ${X(260)} ${cy('erp')}, ${left('erp') - 4} ${cy('erp')}`);
+    out += edge(`M${right('erp') + 4} ${cy('erp') - 13} C ${X(530)} ${cy('erp') - 13}, ${X(540)} ${cy('mes')}, ${left('mes') - 4} ${cy('mes')}`, true);
+    out += edge(`M${right('erp') + 4} ${cy('erp') + 13} C ${X(530)} ${cy('erp') + 13}, ${X(540)} ${cy('wms')}, ${left('wms') - 4} ${cy('wms')}`, true);
+    out += edge(`M${cx('mes')} ${bottom('mes')} V${top('wms') - 4}`);
+    for (const k of ['crm', 'erp', 'wms']) out += edge(`M${cx(k)} ${Y(appsY)} V${bottom(k) + 4}`, false, true);
+
+    out += Object.keys(n).map(node).join('');
+    out += tag('qualified leads', 110, 158);
+    out += tag('orders', 240, 198);
+    out += tag('work orders', 530, 110);
+    out += tag('stock levels', 530, 206);
+    out += tag('finished goods', 674, 158);
+
+    out += rect(X(25), Y(appsY), 734, 50, 14, C.panel, C.borderStrong);
+    out += lucide('smartphone', X(45), Y(appsY + 14), 22);
+    out += text('Web & mobile apps · PWA, iOS, Android', X(80), baseline(Y(appsY + 25), 16), { size: 16, font: bold, fill: C.title });
+    return out;
   };
-  const cx = (n) => n.x + nodeW / 2;
-  const cy = (n) => n.y + nodeH / 2;
 
-  const group = (x, y, w, gh, label) =>
-    `<rect x="${x}" y="${y}" width="${w}" height="${gh}" rx="18" fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="6 6"/>` +
-    text(label, x + 18, y + 26, { size: 12, font: bold, fill: C.muted });
-
-  const node = (n) =>
-    `<rect x="${n.x}" y="${n.y}" width="${nodeW}" height="${nodeH}" rx="16" fill="${n.fill}"/>` +
-    text(n.title, cx(n), n.y + 32, { size: 20, font: bold, fill: '#FFFFFF', anchor: 'middle' }) +
-    text(n.sub, cx(n), n.y + 55, { size: 13, fill: '#E0E7FF', anchor: 'middle' });
-
-  const label = (str, x, y) => {
-    const size = 13;
-    const w = measure(str, size) + 16;
-    return (
-      `<rect x="${x - w / 2}" y="${y - 12}" width="${w}" height="22" rx="11" fill="${C.card}" stroke="#334155"/>` +
-      text(str, x, y + 4, { size, fill: C.body, anchor: 'middle' })
-    );
-  };
-
-  const edge = (d, both = false, dashed = false) =>
-    `<path d="${d}" fill="none" stroke="${C.muted}" stroke-width="2"${dashed ? ' stroke-dasharray="5 6"' : ''} marker-end="url(#arrow)"${both ? ' marker-start="url(#arrow)"' : ''}/>`;
-
-  const { ai, crm, erp, mes, wms } = nodes;
-  const appY = 384;
-
-  let body = card(0, 0, W, h, 22);
-  body += group(20, 24, 230, 318, 'FRONT OFFICE');
-  body += group(290, 24, 530, 318, 'BACK OFFICE');
-  // Edges first so nodes and labels sit on top.
-  body += edge(`M${cx(ai)} ${ai.y + nodeH} V${crm.y - 4}`);
-  body += edge(`M${crm.x + nodeW} ${cy(crm)} C 270 ${cy(crm)}, 285 ${cy(erp)}, ${erp.x - 4} ${cy(erp)}`);
-  body += edge(`M${erp.x + nodeW + 4} ${cy(erp) - 14} C 560 ${cy(erp) - 14}, 570 ${cy(mes)}, ${mes.x - 4} ${cy(mes)}`, true);
-  body += edge(`M${erp.x + nodeW + 4} ${cy(erp) + 14} C 560 ${cy(erp) + 14}, 570 ${cy(wms)}, ${wms.x - 4} ${cy(wms)}`, true);
-  body += edge(`M${cx(mes)} ${mes.y + nodeH} V${wms.y - 4}`);
-  body += edge(`M${cx(crm)} ${appY} V${crm.y + nodeH + 4}`, false, true);
-  body += edge(`M${cx(erp)} ${appY} V${erp.y + nodeH + 4}`, false, true);
-  body += edge(`M${cx(wms)} ${appY} V${wms.y + nodeH + 4}`, false, true);
-
-  body += Object.values(nodes).map(node).join('');
-  body += label('qualified leads', cx(ai), 190);
-  body += label('orders', 272, 232);
-  body += label('work orders', 562, 138);
-  body += label('stock levels', 562, 244);
-  body += label('finished goods', cx(mes), 190);
-
-  body += `<rect x="45" y="${appY}" width="${W - 90}" height="54" rx="16" fill="${C.teal}"/>`;
-  body += lucide('smartphone', 70, appY + 15, 24);
-  body += text('Web & mobile apps (PWA, iOS, Android)', 106, baseline(appY + 27, 18), { size: 18, font: bold, fill: '#FFFFFF' });
-
-  write(
+  section(
     'flow.svg',
-    svg(W, h, body, 'AI agents feed qualified leads to CRM; CRM sends orders to ERP; ERP exchanges work orders with MES and stock levels with WMS; MES sends finished goods to WMS; web and mobile apps sit on top of CRM, ERP and WMS.'),
+    'How it fits together',
+    contentH,
+    draw,
+    'How it fits together: AI agents feed qualified leads to CRM; CRM sends orders to ERP; ERP exchanges work orders with MES and stock levels with WMS; MES sends finished goods to WMS; web and mobile apps sit on top of CRM, ERP and WMS.',
   );
 }
 
-/* ----------------------------------------------------------- tech icons */
+/* ---------------------------------------------------------- tech stack */
 
-// Skillicons tiles are copied as-is; Devicon / Simple Icons logos get the same
-// dark rounded tile so every icon in the row looks alike.
-for (const file of fs.readdirSync(path.join(here, 'sources', 'skill'))) {
-  fs.copyFileSync(path.join(here, 'sources', 'skill', file), path.join(assets, 'icons', file));
+{
+  const stack = [
+    ['dv-csharp', 'C#'], ['dotnet', '.NET'], ['dv-entityframeworkcore', 'Entity Framework Core'],
+    ['dv-microsoftsqlserver', 'SQL Server'], ['oracle', 'Oracle'], ['typescript', 'TypeScript'], ['react', 'React'],
+    ['nextdotjs', 'Next.js'], ['tailwindcss', 'Tailwind CSS'], ['pwa', 'PWA'], ['windows', 'Windows'],
+    ['apple', 'macOS and iOS'], ['linux', 'Linux'], ['android', 'Android'],
+    ['git', 'Git'], ['githubactions', 'GitHub Actions'], ['dv-visualstudio', 'Visual Studio'], ['dv-vscode', 'VS Code'],
+    ['dv-powershell', 'PowerShell'], ['dv-playwright', 'Playwright'], ['vitest', 'Vitest'],
+  ];
+  const perRow = 7;
+  const tile = 72;
+  const gap = 16;
+  const rows = Math.ceil(stack.length / perRow);
+  const rowW = perRow * tile + (perRow - 1) * gap;
+  const contentH = rows * tile + (rows - 1) * gap;
+
+  section(
+    'stack.svg',
+    'Tech stack',
+    contentH,
+    (ox, oy) =>
+      stack
+        .map(([file], index) => {
+          const x = ox + (W - PAD * 2 - rowW) / 2 + (index % perRow) * (tile + gap);
+          const y = oy + Math.floor(index / perRow) * (tile + gap);
+          const size = 34;
+          return rect(x, y, tile, tile, 16, C.panel) + mark(file, x + (tile - size) / 2, y + (tile - size) / 2, size);
+        })
+        .join(''),
+    `Tech stack: ${stack.map(([, name]) => name).join(', ')}`,
+  );
 }
-
-/** `fill` colors single-color marks (their paths carry no fill of their own). */
-function tile(name, src, { pad = 46, fill } = {}) {
-  const source = fs.readFileSync(src, 'utf8');
-  const viewBox = source.match(/viewBox="([^"]+)"/)[1];
-  const inner = source
-    .replace(/^[\s\S]*?<svg[^>]*>/, '')
-    .replace(/<\/svg>\s*$/, '')
-    .replace(/<title>[\s\S]*?<\/title>/, '');
-  const content =
-    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48" viewBox="0 0 256 256">` +
-    `<rect width="256" height="256" rx="60" fill="#242938"/>` +
-    `<svg x="${pad}" y="${pad}" width="${256 - pad * 2}" height="${256 - pad * 2}" viewBox="${viewBox}"${fill ? ` fill="${fill}"` : ''}>${inner}</svg></svg>\n`;
-  fs.writeFileSync(path.join(assets, 'icons', `${name}.svg`), content);
-}
-
-const devicon = (name) => path.join(here, 'sources', 'devicon', `${name}.svg`);
-tile('entityframeworkcore', devicon('entityframeworkcore'), { pad: 34 });
-tile('android', devicon('android'));
-tile('playwright', devicon('playwright'));
-// Dark brand colors vanish on the dark tile: single-color marks in a lighter tone.
-tile('microsoftsqlserver', devicon('microsoftsqlserver-plain'), { pad: 40, fill: '#F2555A' });
-tile('oracle', path.join(here, 'sources', 'oracle-si.svg'), { pad: 50, fill: '#F80000' });
-tile('pwa', path.join(here, 'sources', 'pwa.svg'), { pad: 50, fill: '#FFFFFF' });
-console.log('icons                     ', fs.readdirSync(path.join(assets, 'icons')).length);
